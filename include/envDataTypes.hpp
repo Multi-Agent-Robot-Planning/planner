@@ -16,6 +16,7 @@
 #define ENV_DATA_TYPES_H
 
 #include <vector>
+#include <memory>
 
 /// @brief Point type that stores x, y coordinate of a point in the 2D map
 struct Point2D{
@@ -57,6 +58,14 @@ class Event{
                                             vertices_(vertices), 
                                             prev_vertex_(prev_vertex), 
                                             next_vertex_(next_vertex){}
+};
+
+class Cell{
+    Edge ceiling;
+    Edge floor;
+
+    std::shared_ptr<Cell> prev_;
+    std::shared_ptr<Cell> next_;    
 };
 
 #endif
