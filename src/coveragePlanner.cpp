@@ -17,9 +17,26 @@ std::vector<std::vector<Point2D>> obstacles;
 
 void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
 {
-    for(int i=0; i<polygon.size(); i++)
+    int i = 0;
+
+    while(i<polygon.size())
     {
-        std::vector<Point2D> previous_vertex = polygon[]
+        Point2D previous_vertex = polygon[(i-1) % polygon.size()];
+        Point2D current_vertex = polygon[(i) % polygon.size()];
+        std::vector<Point2D> inline_vertices;
+
+        if(current_vertex.x_ = previous_vertex.x_)
+            continue;
+
+        while(polygon[(i + 1) % polygon.size()].x_ == polygon[(i) % polygon.size()].x_)
+        {
+            inline_vertices.push_back(polygon[(i + 1) % polygon.size()]);
+            i++;
+        }
+
+        Point2D next_vertex =  polygon[(i + 1) % polygon.size()];
+        events.push_back(Event(inline_vertices, previous_vertex, next_vertex));
+        i++;
     }
 }
 
@@ -36,4 +53,114 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
     {
         get_event_type(obstacles[i]);
     }
+    std::sort(events.begin(), events.end(), event_comparator);
+
+    for(Event event: events)
+    {
+        floor, ceiling = get_floor_ceiling();
+
+        if(event.event_type_ == EventType.IN)
+        {
+            int i = 0;
+            for(Cell cell: open_cells)
+            {
+                if(floor == cell.floor && ceiling == cell.ceiling)
+                {
+                    //new bottom cell
+                    //new top cell
+                    open_cells.push_back(newbottomcell);
+                    open_cells.push_back(newtopcell);
+                    closed_cells.push_back(cell);
+                    open_cells.erase(open_cells.begin()+i);
+                    i++;
+                    break;
+                }
+            }
+        }
+        else if(event.event_type_ == EventType.OUT)
+        {
+            int upperCell_idx, lowerCell_idx; 
+            int i = 0;
+            for(Cell cell: open_cells)
+            {
+                if(cell.floor == event.prev_edge_)
+                {
+                    upperCell_idx = i;
+                    Cell upper_cell = cell;
+                }
+                else if(cell.ceiling == event.next_edge_)
+                {
+                    lowerCell_idx = i;
+                    Cell lower_cell = cell;
+                }
+                i++;
+            }
+                //create new cell
+            open_cells.erase(open_cells.begin()+std::max(upperCell_idx, lowerCell_idx));
+            open_cells.erase(open_cells.begin()+std::min(upperCell_idx, lowerCell_idx));
+            
+        }
+        else if(event.event_type_ == EventType.OPEN)
+        {
+            open_cells.push_back(); //push back a new cell
+        }
+        else if(event.event_type_ == EventType.CLOSE)
+        {
+            int i = 0;
+            for(Cell cell: open_cells)
+            {
+                if(event.prev_edge_ == cell.floor && event.next_edge_ == cell.ceiling)
+                {
+                    closed_cells.push_back(cell);
+                    open_cells.erase(open_cells.begin() + i);
+                    break;
+                }
+                i++;
+            }
+        }
+        else if(event.event_type_ == EventType.FLOOR)
+        {
+            int i = 0;
+            for(Cell cell: open_cells)
+            {
+                if(event.prev_edge_ = cell.floor && ceiling = cell.ceiling)
+                {
+                    //new cell
+                    closed_cells.push_back(cell);
+                    open_cells.erase(open_cells.begin() + i);
+                    open_cells.push_back(new_cell);
+                    break;
+                }
+            }
+        }
+        else if(event.event_type_ == EventType.CEILING)
+        {
+            int i = 0;
+            for(Cell cell: open_cells)
+            {
+                if(floor = cell.floor && event.next_edge_ = cell.ceiling)
+                {
+                    //new cell
+                    closed_cells.push_back(cell);
+                    open_cells.erase(open_cells.begin() + i);
+                    open_cells.push_back(new_cell);
+                    break;
+                }
+            }
+        }
+
+        if(event.prev_vertex_.x_ < event.x_)
+            //current eges remove event.prevedge
+        else
+            //current edges append prevedge
+
+        if(event.nexr_vertex_.x_ < event.x_)
+            //current eges remove event.nextedge
+        else
+            //current edges append nextedge
+    }
+
+    //remove degenerate cells and return
 }
+    
+
