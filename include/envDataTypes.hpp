@@ -53,11 +53,14 @@ class Event{
         Point2D prev_vertex_;
         Point2D next_vertex_;
         EventType event_type_;
+        int x_;
 
         Event(std::vector<Point2D>vertices, Point2D prev_vertex, Point2D next_vertex) : 
                                             vertices_(vertices), 
                                             prev_vertex_(prev_vertex), 
-                                            next_vertex_(next_vertex){}
+                                            next_vertex_(next_vertex){
+                                                x_ = vertices_[0].x_;
+                                            }
 };
 
 class Cell{

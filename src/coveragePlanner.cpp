@@ -10,38 +10,25 @@
  */
 
 #include "coveragePlanner.hpp"
+#include "envDataTypes.hpp"
 
+std::vector<Point2D> map_boundary;
+std::vector<std::vector<Point2D>> obstacles;
 
-
-//create events
-class Event
+void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
 {
-    //will take the position of the obstacles and some other things maybe
-
-};
-
-//take obstacle center, height, width, and angle as input
-//rotate the obstacles as necessary
-
-//trapezoidal decomposition
-//get events from polygon - first send the outer boundry (map)
-
-class point2D
-{
-    private:
-    int x;
-    int y;
-};
-
-std::vector<point2D> map_boundary;
-std::vector<std::vector<point2D>> obstacles;
-
-std::vector<Event> coveragePlanner::get_event_type(std::vector<point2D> polygon)
-{
-
+    for(int i=0; i<polygon.size(); i++)
+    {
+        std::vector<Point2D> previous_vertex = polygon[]
+    }
 }
 
-void coveragePlanner::decompose_map(std::vector<point2D> map_boundary, std::vector<std::vector<point2D>> obstacles)
+bool coveragePlanner::event_comparator(Event e1, Event e2)
+{
+    return (e1.x_ > e2.x_);
+}
+
+void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles)
 {
     get_event_type(map_boundary);
 
