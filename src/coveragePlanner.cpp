@@ -1,4 +1,17 @@
+/**
+ * @file coveragePlanner.cpp
+ * @author Sundaram Seivur (sseivur@andrew.cmu.edu)
+ * @brief 
+ * @version 0.1
+ * @date 2022-12-02
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include "coveragePlanner.hpp"
+
+
 
 //create events
 class Event
@@ -23,7 +36,17 @@ class point2D
 std::vector<point2D> map_boundary;
 std::vector<std::vector<point2D>> obstacles;
 
-void get_event_type(std::vector<point2D> polygon)
+std::vector<Event> coveragePlanner::get_event_type(std::vector<point2D> polygon)
 {
-    
+
+}
+
+void coveragePlanner::decompose_map(std::vector<point2D> map_boundary, std::vector<std::vector<point2D>> obstacles)
+{
+    get_event_type(map_boundary);
+
+    for(int i=0; i<obstacles.size(); i++)
+    {
+        get_event_type(obstacles[i]);
+    }
 }
