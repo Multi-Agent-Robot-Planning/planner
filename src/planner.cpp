@@ -18,6 +18,8 @@
 #include <assert.h> 
 #include <regex> 
 
+#include "../include/coveragePlanner.hpp"
+
 
 using namespace std;
 
@@ -91,5 +93,8 @@ int main(int argc, char** argv) {
 
     tie(map, x_size, y_size) = loadMap(argv[1]);
     cout << "Map size: " << x_size << " , " << y_size << endl;
+
+    // Planner
+    coveragePlanner coverage_planner;
 
 }

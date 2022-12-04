@@ -9,8 +9,8 @@
  * 
  */
 
-#include "coveragePlanner.hpp"
-#include "envDataTypes.hpp"
+#include "../include/coveragePlanner.hpp"
+#include "../include/envDataTypes.hpp"
 
 std::vector<Point2D> map_boundary;
 std::vector<std::vector<Point2D>> obstacles;
@@ -85,7 +85,7 @@ std::pair<Edge, Edge> coveragePlanner::get_floor_ceiling(Event event)
     return std::make_pair(floor, ceiling);
 }
 
-std::vector<Cell> coveragePlanner::clean_cells()
+void coveragePlanner::clean_cells()
 {
     for(Cell cell: closed_cells)
     {
@@ -99,13 +99,14 @@ std::vector<Cell> coveragePlanner::clean_cells()
         {
             std::vector<Cell> meta_neighbors = *(neighbor.neighbors_);
             int idx = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell) != meta_neighbors.end();
+            
             std::vector<Cell> new_meta_neighbors;
             new_meta_neighbors.push_back(meta_neighbors[0, idx]);
-            new_meta_neighbors.push_back(*(cell.neighbors_)[0, i]);
-            new_meta_neighbors.push_back(*(cell.neighbors_)[i+1, *(cell.neighbors_)]);
-            new_meta_neighbors.push_back(meta_neighbors[idx+1, meta_neighbors.size()]);
-
-            
+            new_meta_neighbors.insert(new_meta_neighbors.end(), (*cell.neighbors_).begin(), (*cell.neighbors_).begin()+i);
+            new_meta_neighbors.insert(new_meta_neighbors.end(), (*cell.neighbors_).begin()+(i+1), (*cell.neighbors_).end());
+            new_meta_neighbors.insert(new_meta_neighbors.end(), meta_neighbors.begin()+(idx+1), meta_neighbors.end());
+        
+            neighbor.neighbors_ = std::make_shared<std::vector<Cell>>(new_meta_neighbors);
         }
     }
 }
