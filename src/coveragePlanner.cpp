@@ -51,15 +51,54 @@ Point2D draw_line_edge(int x, Edge edge)
     return Point2D(x,y);
 }
 
-void coveragePlanner::get_floor_ceiling(Event event)
-{
+std::pair<Edge, Edge> coveragePlanner::get_floor_ceiling(Event event)
+{   
+    Edge floor, ceiling;
+    double floor_dist = 0;
+    double ceiling_dist = 0; 
     for(Edge edge: all_edges)
     {
         if(edge == event.prev_edge_ || edge == event.next_edge_)
             continue;
         //draw vertical line from edge
         Point2D intersection = draw_line_edge(event.x_, edge);
-        double dist_to_ceiling = intersection.y_ - event.
+        double dist_to_ceiling = intersection.y_ - event.y_max;
+        double dist_to_floor = event.y_min - intersection.y_;
+
+        if(dist_to_floor > 0)
+        {
+            if(floor_dist == 0 || dist_to_floor < floor_dist)
+            {
+                floor_dist = dist_to_floor;
+                floor = edge;
+            }
+        }
+        else if(dist_to_ceiling > 0)
+        {
+            if(ceiling_dist == 0 || dist_to_ceiling < ceiling_dist)
+            {
+                ceiling_dist = dist_to_ceiling;
+                ceiling = edge;
+            }
+        }
+    }
+    return std::make_pair(floor, ceiling);
+}
+
+std::vector<Cell> coveragePlanner::clean_cells()
+{
+    for(Cell cell: closed_cells)
+    {
+        if(cell.x_left_ != cell.x_right_)
+        {
+            final_cells.push_back(cell);
+            continue;
+        }
+        for(Cell neighbor: *(cell.neighbors_))
+        {
+            std::vector<Cell> meta_neighbors = *(neighbor.neighbors_);
+            int index = meta_neighbors.
+        }
     }
 }
 
@@ -75,7 +114,9 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
 
     for(Event event: events)
     {
-        floor, ceiling = get_floor_ceiling();
+        std::pair<Edge, Edge> floor_ceil_pair = get_floor_ceiling(event);
+        Edge floor = floor_ceil_pair.first;
+        Edge ceiling = floor_ceil_pair.second;
 
         if(event.event_type_ == IN)
         {
@@ -84,10 +125,13 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
             {
                 if(floor == cell.floor && ceiling == cell.ceiling)
                 {
-                    //new bottom cell
-                    //new top cell
-                    open_cells.push_back(newbottomcell);
-                    open_cells.push_back(newtopcell);
+                    Cell lower_cell(floor, event.prev_edge_, event.x_, NULL, cell);
+                    Cell higher_cell(event.next_edge_, ceiling, event.x_, NULL, cell);
+                    open_cells.push_back(lower_cell);
+                    open_cells.push_back(higher_cell);
+                    cell.x_right_ = event.x_;
+                    cell.neighbors_->push_back(lower_cell);
+                    cell.neighbors_->push_back(higher_cell);
                     closed_cells.push_back(cell);
                     open_cells.erase(open_cells.begin()+i);
                     i++;
@@ -98,29 +142,36 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
         else if(event.event_type_ == OUT)
         {
             int upperCell_idx, lowerCell_idx; 
+            Cell upper_cell, lower_cell;
             int i = 0;
             for(Cell cell: open_cells)
             {
                 if(cell.floor == event.prev_edge_)
                 {
                     upperCell_idx = i;
-                    Cell upper_cell = cell;
+                    upper_cell = cell;
                 }
                 else if(cell.ceiling == event.next_edge_)
                 {
                     lowerCell_idx = i;
-                    Cell lower_cell = cell;
+                    lower_cell = cell;
                 }
                 i++;
             }
-                //create new cell
+            Cell new_cell(floor, ceiling, event.x_, NULL, ); 
             open_cells.erase(open_cells.begin()+std::max(upperCell_idx, lowerCell_idx));
             open_cells.erase(open_cells.begin()+std::min(upperCell_idx, lowerCell_idx));
-            
+            upper_cell.x_right_ = event.x_;
+            lower_cell.x_right_ = event.x_;
+            upper_cell.neighbors_->push_back(new_cell);
+            lower_cell.neighbors_->push_back(new_cell);
+            closed_cells.push_back(upper_cell);
+            closed_cells.push_back(lower_cell);
+            open_cells.push_back(new_cell);
         }
         else if(event.event_type_ == OPEN)
         {
-            open_cells.push_back(); //push back a new cell
+            open_cells.push_back(Cell(event.next_edge_, event.prev_edge_, event.x_, NULL)); //push back a new cell
         }
         else if(event.event_type_ == CLOSE)
         {
@@ -143,12 +194,15 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
             {
                 if(event.prev_edge_ = cell.floor && ceiling = cell.ceiling)
                 {
-                    //new cell
+                    Cell new_cell(event.next_edge_, ceiling, event.x_, NULL, ); 
+                    cell.x_right_ = event.x_;
+                    cell.neighbors_->push_back(new_cell);
                     closed_cells.push_back(cell);
                     open_cells.erase(open_cells.begin() + i);
                     open_cells.push_back(new_cell);
                     break;
                 }
+                i++;
             }
         }
         else if(event.event_type_ == CEILING)
@@ -158,27 +212,78 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
             {
                 if(floor = cell.floor && event.next_edge_ = cell.ceiling)
                 {
-                    //new cell
+                    Cell new_cell(floor, event.prev_edge_, event.x_, NULL, ); 
+                    cell.x_right_ = event.x_;
+                    cell.neighbors_->push_back(new_cell);
                     closed_cells.push_back(cell);
                     open_cells.erase(open_cells.begin() + i);
                     open_cells.push_back(new_cell);
                     break;
                 }
+                i++;
             }
         }
 
         if(event.prev_vertex_.x_ < event.x_)
-            //current eges remove event.prevedge
+            all_edges.erase(std::remove(all_edges.begin(), all_edges.end(), event.prev_edge_), all_edges.end());
         else
-            //current edges append prevedge
+            all_edges.push_back(event.prev_edge_);
 
-        if(event.nexr_vertex_.x_ < event.x_)
-            //current eges remove event.nextedge
+        if(event.next_vertex_.x_ < event.x_)
+            all_edges.erase(std::remove(all_edges.begin(), all_edges.end(), event.next_edge_), all_edges.end());
         else
-            //current edges append nextedge
+            all_edges.push_back(event.next_edge_);
+
     }
 
-    //remove degenerate cells and return
+    clean_cells();
 }
-    
+
+std::vector<Point2D> coveragePlanner::build_path()
+{
+    for(Cell cell: traverse_cells)
+    {
+        for(Point2D p: *(cell.get_vertices()))
+        {
+            final_path.push_back();
+        }
+    }
+}
+
+void coveragePlanner::build_polygon_path(Point2D p)
+{
+    std::pair<std::vector<Point2D>, std::vector<Point2D>> floor_ceiling_pair = get_polygon_floor_ceiling();
+    std::vector<Point2D> floor_vertices = floor_ceiling_pair.first;
+    std::vector<Point2D> ceiling_vertices = floor_ceiling_pair.second;
+
+    std::vector<int> x_vec_floor;
+    std::vector<int> y_vec_floor;
+    std::vector<int> x_vec_ceiling;
+    std::vector<int> y_vec_ceiling;
+     
+     for(int i = 0; i<floor_vertices.size(); i++)
+     {
+        x_vec_floor = floor_vertices[i][0];
+        y_vec_floor = floor_vertices[i][1];
+     }
+     for(int i = 0; i<ceiling_vertices.size(); i++)
+     {
+        x_vec_ceiling = ceiling_vertices[i][0];
+        y_vec_ceiling = ceiling_vertices[i][1];
+     }
+     cell_lawnmover_path(x_vec_floor, y_vec_floor,x_vec_ceiling, y_vec_ceiling);
+}    
+
+void coveragePlanner::cell_lawnmover_path(std::vector<int> x_vec_floor, std::vector<int> y_vec_floor, std::vector<int> x_vec_ceiling, std::vector<int> y_vec_ceiling)
+{
+    int x_min = x_vec_floor[0];
+    int x_max = x_vec_floor.back();
+    final_path.push_back(std::make_pair(x_vec_floor[0], y_vec_floor[0]));
+    int x_current = x_min;
+
+    while(1)
+    {
+        
+    }
+}
 

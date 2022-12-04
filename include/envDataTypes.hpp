@@ -101,7 +101,9 @@ class Cell{
         std::shared_ptr<Cell> prev_;
         std::shared_ptr<Cell> next_;    
 
-        Cell(Edge ceiling, Edge floor, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+        Cell(){};
+
+        Cell(Edge floor, Edge ceiling, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
                                                 ceiling_(ceiling), 
                                                 floor_(floor), 
                                                 x_left_(x_left),
