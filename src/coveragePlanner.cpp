@@ -40,10 +40,10 @@ void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
     }
 }
 
-bool coveragePlanner::event_comparator(Event e1, Event e2)
-{
-    return (e1.x_ > e2.x_);
-}
+// static bool coveragePlanner::event_comparator(Event e1, Event e2)
+// {
+//     return (e1.x_ > e2.x_);
+// }
 
 Point2D draw_line_edge(int x, Edge edge)
 {
@@ -288,7 +288,7 @@ std::pair<std::vector<std::pair<int, int>>, std::vector<std::pair<int, int>>> co
         }
         else if(vertex.first > last_vertex.first && !append_floor_vertices)
         {
-            ;
+            assert(false);
         }
 
         if(append_floor_vertices)
@@ -303,6 +303,8 @@ std::pair<std::vector<std::pair<int, int>>, std::vector<std::pair<int, int>>> co
         ceiling_vertices.push_back(last_vertex);
     ceiling_vertices.push_back(cell_vertices[first_idx]);
     std::reverse(ceiling_vertices.begin(), cell_vertices.end());
+
+    return std::make_pair(floor_vertices, ceiling_vertices);
 }
 
 std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector<std::pair<int, int>> cell_vertices)
