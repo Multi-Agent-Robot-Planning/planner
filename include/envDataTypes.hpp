@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <memory>
+#include <bits/stdc++.h>
 
 /// @brief Point type that stores x, y coordinate of a point in the 2D map
 struct Point2D{
@@ -54,16 +55,23 @@ class Event{
         Point2D next_vertex_;
         EventType event_type_;
         int x_;
+        Edge prev_edge_;
+        Edge next_edge_;
+        int max_y, min_y;
 
         Event(std::vector<Point2D>vertices, Point2D prev_vertex, Point2D next_vertex) : 
                                             vertices_(vertices), 
                                             prev_vertex_(prev_vertex), 
-                                            next_vertex_(next_vertex){
+                                            next_vertex_(next_vertex)
+                                            {
                                                 x_ = vertices_[0].x_;
+                                                prev_edge_ = Edge(prev_vertex_, vertices_[0]);
+                                                next_edge_ = Edge(vertices_.back(), next_vertex_);
                                             }
 };
 
 class Cell{
+    public:
     Edge ceiling;
     Edge floor;
 

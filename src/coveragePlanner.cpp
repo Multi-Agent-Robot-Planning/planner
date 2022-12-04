@@ -45,6 +45,24 @@ bool coveragePlanner::event_comparator(Event e1, Event e2)
     return (e1.x_ > e2.x_);
 }
 
+Point2D draw_line_edge(int x, Edge edge)
+{
+    int y = edge.p1_.y_ + (edge.p2_.y_ - edge.p1_.y_) * (x - edge.p1_.x_) / (edge.p2_.x_ - edge.p1_.x_);
+    return Point2D(x,y);
+}
+
+void coveragePlanner::get_floor_ceiling(Event event)
+{
+    for(Edge edge: all_edges)
+    {
+        if(edge == event.prev_edge_ || edge == event.next_edge_)
+            continue;
+        //draw vertical line from edge
+        Point2D intersection = draw_line_edge(event.x_, edge);
+        double dist_to_ceiling = intersection.y_ - event.
+    }
+}
+
 void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles)
 {
     get_event_type(map_boundary);
@@ -59,7 +77,7 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
     {
         floor, ceiling = get_floor_ceiling();
 
-        if(event.event_type_ == EventType.IN)
+        if(event.event_type_ == IN)
         {
             int i = 0;
             for(Cell cell: open_cells)
@@ -77,7 +95,7 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
                 }
             }
         }
-        else if(event.event_type_ == EventType.OUT)
+        else if(event.event_type_ == OUT)
         {
             int upperCell_idx, lowerCell_idx; 
             int i = 0;
@@ -100,11 +118,11 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
             open_cells.erase(open_cells.begin()+std::min(upperCell_idx, lowerCell_idx));
             
         }
-        else if(event.event_type_ == EventType.OPEN)
+        else if(event.event_type_ == OPEN)
         {
             open_cells.push_back(); //push back a new cell
         }
-        else if(event.event_type_ == EventType.CLOSE)
+        else if(event.event_type_ == CLOSE)
         {
             int i = 0;
             for(Cell cell: open_cells)
@@ -118,7 +136,7 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
                 i++;
             }
         }
-        else if(event.event_type_ == EventType.FLOOR)
+        else if(event.event_type_ == FLOOR)
         {
             int i = 0;
             for(Cell cell: open_cells)
@@ -133,7 +151,7 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
                 }
             }
         }
-        else if(event.event_type_ == EventType.CEILING)
+        else if(event.event_type_ == CEILING)
         {
             int i = 0;
             for(Cell cell: open_cells)
