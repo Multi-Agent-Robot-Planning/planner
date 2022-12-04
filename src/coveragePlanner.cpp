@@ -247,17 +247,68 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
     clean_cells();
 }
 
-std::pair<std::vector<Point2D>, std::vector<Point2D>> coveragePlanner::get_polygon_floor_ceiling(std::vector<std::pair<int, int>> cell_vertices)
+int coveragePlanner::leftmost_vertex_idx(std::vector<std::pair<int, int>> cell_vertices)
+{
+    std::pair<int, int> leftmost_vertex = std::make_pair(NULL, NULL);
+    int vertex_idx;
+    int i = 0;
+    for(std::pair<int, int> vertex: cell_vertices)
+    {
+        if(leftmost_vertex.first == NULL || vertex.first < leftmost_vertex.first)
+        {
+            leftmost_vertex = vertex;
+            vertex_idx = i;
+        }
+        else if(vertex.first == leftmost_vertex.first && vertex.second < leftmost_vertex.second)
+        {
+            leftmost_vertex = vertex;
+            vertex_idx = i;
+        }
+        i++;
+    }
+    return vertex_idx;
+}
+
+std::pair<std::vector<std::pair<int, int>>, std::vector<std::pair<int, int>>> coveragePlanner::get_polygon_floor_ceiling(std::vector<std::pair<int, int>> cell_vertices)
 {
     int first_idx = leftmost_vertex_idx(cell_vertices);
-    
+    bool append_floor_vertices = true;
+    std::vector<std::pair<int, int>> floor_vertices;
+    floor_vertices.push_back(cell_vertices[first_idx]);
+    std::pair<int, int> last_vertex = cell_vertices[first_idx];
+    std::vector<std::pair<int, int>> ceiling_vertices;
+    for(int i=1; i<cell_vertices.size(); i++)
+    {
+        std::pair<int, int> vertex = cell_vertices[(first_idx+i)%cell_vertices.size()];
+        if(vertex.first < last_vertex.first && append_floor_vertices)
+        {
+            ceiling_vertices.push_back(last_vertex);
+            append_floor_vertices = false;
+        }
+        else if(vertex.first > last_vertex.first && !append_floor_vertices)
+        {
+            ;
+        }
+
+        if(append_floor_vertices)
+            floor_vertices.push_back(vertex);
+        else
+            ceiling_vertices.push_back(vertex);
+
+        last_vertex = vertex;
+    }
+
+    if(append_floor_vertices)
+        ceiling_vertices.push_back(last_vertex);
+    ceiling_vertices.push_back(cell_vertices[first_idx]);
+    std::reverse(ceiling_vertices.begin(), cell_vertices.end());
 }
 
 std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector<std::pair<int, int>> cell_vertices)
 {
-    std::pair<std::vector<Point2D>, std::vector<Point2D>> floor_ceiling_pair = get_polygon_floor_ceiling(cell_vertices);
-    std::vector<Point2D> floor_vertices = floor_ceiling_pair.first;
-    std::vector<Point2D> ceiling_vertices = floor_ceiling_pair.second;
+    std::pair<std::vector<std::pair<int, int>>, std::vector<std::pair<int, int>>> floor_ceiling_pair = get_polygon_floor_ceiling(cell_vertices);
+    std::vector<std::pair<int, int>> floor_vertices = floor_ceiling_pair.first;
+    std::vector<std::pair<int, int>> ceiling_vertices = floor_ceiling_pair.second;
 
     std::vector<int> x_vec_floor;
     std::vector<int> y_vec_floor;
@@ -266,13 +317,13 @@ std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector
      
     for(int i = 0; i<floor_vertices.size(); i++)
     {
-       x_vec_floor.push_back(floor_vertices[i].x_);
-       y_vec_floor.push_back(floor_vertices[i].y_);
+       x_vec_floor.push_back(floor_vertices[i].first);
+       y_vec_floor.push_back(floor_vertices[i].second);
     }
     for(int i = 0; i<ceiling_vertices.size(); i++)
     {
-       x_vec_ceiling.push_back(ceiling_vertices[i].x_);
-       y_vec_ceiling.push_back(ceiling_vertices[i].y_);
+       x_vec_ceiling.push_back(ceiling_vertices[i].first);
+       y_vec_ceiling.push_back(ceiling_vertices[i].second);
     }
     return(cell_lawnmover_path(x_vec_floor, y_vec_floor,x_vec_ceiling, y_vec_ceiling));
 }   
