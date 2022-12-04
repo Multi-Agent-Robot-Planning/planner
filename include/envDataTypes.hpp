@@ -34,6 +34,7 @@ struct Edge{
     public:
         Point2D p1_, p2_;
 
+        Edge(){}
         Edge(Point2D p1, Point2D p2) : p1_(p1), p2_(p2){}
 };
 
@@ -57,7 +58,7 @@ class Event{
         int x_;
         Edge prev_edge_;
         Edge next_edge_;
-        int max_y, min_y;
+        int y_max = INT_MAX, y_min = INT_MIN;
 
         Event(std::vector<Point2D>vertices, Point2D prev_vertex, Point2D next_vertex) : 
                                             vertices_(vertices), 
@@ -67,16 +68,73 @@ class Event{
                                                 x_ = vertices_[0].x_;
                                                 prev_edge_ = Edge(prev_vertex_, vertices_[0]);
                                                 next_edge_ = Edge(vertices_.back(), next_vertex_);
+
+                                                find_max();
+                                                find_min();
                                             }
+
+        void find_max(void){
+            for(Point2D v : vertices_){
+                if(v.y_ > y_max)
+                    y_max = v.y_;
+            }
+        };
+        void find_min(void){
+            for(Point2D v : vertices_){
+                if(v.y_ < y_min)
+                    y_max = v.y_;
+            }
+        };
 };
 
 class Cell{
     public:
-    Edge ceiling;
-    Edge floor;
+        int id_;
+        Edge ceiling_;
+        Edge floor_;
 
-    std::shared_ptr<Cell> prev_;
-    std::shared_ptr<Cell> next_;    
+        double x_left_;
+        double x_right_;
+
+        std::shared_ptr<std::vector<Cell>> neighbors_;
+
+        std::shared_ptr<Cell> prev_;
+        std::shared_ptr<Cell> next_;    
+
+        Cell(Edge ceiling, Edge floor, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+                                                ceiling_(ceiling), 
+                                                floor_(floor), 
+                                                x_left_(x_left),
+                                                x_right_(x_right),
+                                                neighbors_(neighbors)
+                                                {}
+
+        Point2D vertical_edge(double x, Edge edge){
+            double y = 0;
+            return Point2D(x, y);
+        }
+
+        std::shared_ptr<std::vector<Point2D>> get_vertices(){
+            std::vector<Point2D> points;
+            points.push_back(vertical_edge(x_left_, floor_));
+            points.push_back(vertical_edge(x_right_, floor_));
+            points.push_back(vertical_edge(x_right_, ceiling_));
+            points.push_back(vertical_edge(x_left_, ceiling_));
+
+            return std::make_shared<std::vector<Point2D>>(points);
+        }
+
+        Point2D get_centroid(){
+            auto points = *get_vertices();
+            int x_mean = 0, y_mean = 0;
+            for(auto p : points){
+                x_mean += p.x_;
+                y_mean += p.y_;
+            }
+            x_mean /= points.size();
+            y_mean /= points.size();
+            return Point2D(x_mean, y_mean);
+        }
 };
 
 #endif
