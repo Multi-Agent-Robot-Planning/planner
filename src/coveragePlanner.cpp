@@ -247,22 +247,15 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
     clean_cells();
 }
 
-std::vector<Point2D> coveragePlanner::build_path()
+std::pair<std::vector<Point2D>, std::vector<Point2D>> coveragePlanner::get_polygon_floor_ceiling(std::vector<std::pair<int, int>> cell_vertices)
 {
-    std::vector<std::pair<int, int>> coverage_path;
-    for(Cell cell: cell_traversal_path)
-    {
-        for(Point2D p: *(cell.get_vertices()))
-        {
-            std::vector<std::pair<int, int>> polygon_path = build_polygon_path(p);
-            coverage_path.insert(coverage_path.end(), polygon_path.begin(), polygon_path.end());
-        }
-    }
+    int first_idx = leftmost_vertex_idx(cell_vertices);
+    
 }
 
-std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(Point2D p)
+std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector<std::pair<int, int>> cell_vertices)
 {
-    std::pair<std::vector<Point2D>, std::vector<Point2D>> floor_ceiling_pair = get_polygon_floor_ceiling();
+    std::pair<std::vector<Point2D>, std::vector<Point2D>> floor_ceiling_pair = get_polygon_floor_ceiling(cell_vertices);
     std::vector<Point2D> floor_vertices = floor_ceiling_pair.first;
     std::vector<Point2D> ceiling_vertices = floor_ceiling_pair.second;
 
@@ -283,6 +276,23 @@ std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(Point2D p)
     }
     return(cell_lawnmover_path(x_vec_floor, y_vec_floor,x_vec_ceiling, y_vec_ceiling));
 }   
+
+std::vector<Point2D> coveragePlanner::build_path()
+{
+    std::vector<std::pair<int, int>> coverage_path;
+    for(Cell cell: cell_traversal_path)
+    {
+        std::vector<std::pair<int, int>> cell_vertices;
+        for(Point2D p: *(cell.get_vertices()))
+        {
+            cell_vertices.push_back(std::make_pair(p.x_, p.y_));
+        }
+        std::vector<std::pair<int, int>> polygon_path = build_polygon_path(cell_vertices);
+        coverage_path.insert(coverage_path.end(), polygon_path.begin(), polygon_path.end());
+    }
+}
+
+
 
 std::vector<int> coveragePlanner::vertical_aligned_edge(int x_current, std::vector<int> x_vec_floor, std::vector<int> y_vec_floor){
     std::vector<int> points;

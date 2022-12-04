@@ -21,11 +21,11 @@ class coveragePlanner
     std::vector<Cell> clean_cells();
 
     std::vector<Point2D> build_path();
-    std::vector<std::pair<int, int>> build_polygon_path(Point2D p);
+    std::vector<std::pair<int, int>> build_polygon_path(std::vector<std::pair<int, int>> cell_vertices);
     std::vector<int> vertical_aligned_edge(int x_current, std::vector<int> x_vec_floor, std::vector<int> y_vec_floor);
     std::pair<int, int> vertical_intersection_with_line(int x_current, std::vector<int> points);
     std::vector<std::pair<int, int>> cell_lawnmover_path(std::vector<int> x_vec_floor, std::vector<int> y_vec_floor, std::vector<int> x_vec_ceiling, std::vector<int> y_vec_ceiling);
-    void get_floor_ceiling();
+    std::pair<std::vector<Point2D>, std::vector<Point2D>> get_polygon_floor_ceiling(std::vector<std::pair<int, int>> cell_vertices);
     
     double cell_dist(Cell cell1, Cell cell2);
     void traverse_cells();
