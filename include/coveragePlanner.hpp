@@ -14,5 +14,7 @@ class coveragePlanner
     void decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles);    
     bool event_comparator(Event e1, Event e2);
     void get_floor_ceiling();
+    double cell_dist(Cell cell1, Cell cell2);
+    void traverse_cells();
 
 };
