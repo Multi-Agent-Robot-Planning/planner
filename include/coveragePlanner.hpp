@@ -16,10 +16,16 @@ class coveragePlanner
     void get_event_type(std::vector<Point2D> polygon);
     void decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles);    
     bool event_comparator(Event e1, Event e2);
+<<<<<<< HEAD
     std::pair<Edge, Edge> get_floor_ceiling(Event event);
     std::vector<Cell> clean_cells();
     std::vector<Point2D> build_path();
     void build_polygon_path(Point2D p);
     void cell_lawnmover_path(std::vector<int> x_vec_floor, std::vector<int> y_vec_floor, std::vector<int> x_vec_ceiling, std::vector<int> y_vec_ceiling);
+=======
+    void get_floor_ceiling();
+    double cell_dist(Cell cell1, Cell cell2);
+    void traverse_cells();
+>>>>>>> 8d57fd28a7ec007f6f04aa57540d9df553f4b5d3
 
 };

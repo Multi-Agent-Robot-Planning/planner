@@ -286,6 +286,41 @@ void coveragePlanner::cell_lawnmover_path(std::vector<int> x_vec_floor, std::vec
 
     }
 }
+  
+double coveragePlanner::cell_dist(Cell cell1, Cell cell2){
+    Point2D centroid1 = cell1.get_centroid();
+    Point2D centroid2 = cell2.get_centroid();
+    double dist = sqrt(pow((centroid1.x_ - centroid2.x_), 2) + pow((centroid1.y_ - centroid2.y_), 2));
+    return dist;
+}
+
+void coveragePlanner::traverse_cells(void){
+
+    for(int i=0; i<closed_cells.size(); i++){
+        closed_cells[i].id_ = i;
+    }
+
+    std::vector<int> unvisited(0, closed_cells.size());
+    unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), 0), unvisited.end());
+    std::vector<int> path_list;
+    path_list.push_back(0);
+
+    while(!unvisited.empty()){
+        
+        auto cell = closed_cells.back();
+        bool neighbors_visited = true;
+        std::vector<int> next_ids;
+
+        for(auto neighbor : *cell.neighbors_){
+            if (std::find(unvisited.begin(), unvisited.end(), neighbor.id_) != unvisited.end()){
+                next_ids.push_back(neighbor.id_);
+                neighbors_visited = false;
+            }
+        }
+
+        if(neighbors_visited)
+            next_ids.assign(unvisited.begin(), unvisited.end()); 
+    
 
         int min_dist = INT_MIN;
         int closest_cell = -1;
