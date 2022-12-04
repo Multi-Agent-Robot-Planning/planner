@@ -283,7 +283,22 @@ void coveragePlanner::cell_lawnmover_path(std::vector<int> x_vec_floor, std::vec
 
     while(1)
     {
-        
+
     }
 }
+
+        int min_dist = INT_MIN;
+        int closest_cell = -1;
+        for(auto id : next_ids){
+            auto next_cell = closed_cells[id];
+            double dist = cell_dist(cell, next_cell);
+            if (dist < min_dist){
+                min_dist = dist;
+                closest_cell = id;
+            }
+        }
+        unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), closest_cell), unvisited.end());
+        path_list.push_back(closest_cell);
+    }    
+}   
 

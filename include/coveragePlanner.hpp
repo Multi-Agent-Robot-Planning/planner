@@ -2,7 +2,6 @@
 #include<vector>
 #include "envDataTypes.hpp"
 #include <bits/stdc++.h>
-#include<memory.h>
 
 class coveragePlanner
 {
