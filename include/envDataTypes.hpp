@@ -25,8 +25,11 @@ struct Point2D{
         int x_, y_;
 
         Point2D() : x_(-1), y_(-1){}
-
         Point2D(int x, int y) : x_(x), y_(y){}
+
+        bool operator==(const Point2D& p){
+            return((this->x_ == p.x_) && (this->y_ == p.y_));
+        }
 };
 
 /// @brief Edge type that stores the edge through two points p1, p2
@@ -36,6 +39,10 @@ struct Edge{
 
         Edge(){}
         Edge(Point2D p1, Point2D p2) : p1_(p1), p2_(p2){}
+
+        bool operator==(const Edge& e){
+            return((this->p1_ == e.p1_ && this->p2_ == e.p2_) || (this->p1_ == e.p2_ && this->p2_ == e.p1_));
+        }    
 };
 
 /// @brief 
@@ -101,7 +108,8 @@ class Cell{
         std::shared_ptr<Cell> prev_;
         std::shared_ptr<Cell> next_;    
 
-        Cell(Edge ceiling, Edge floor, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+        Cell();
+        Cell( Edge floor, Edge ceiling, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
                                                 ceiling_(ceiling), 
                                                 floor_(floor), 
                                                 x_left_(x_left),
