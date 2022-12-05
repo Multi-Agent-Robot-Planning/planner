@@ -90,11 +90,15 @@ int main(int argc, char** argv) {
     int x_size, y_size; 
     double** plan = NULL;
     int planlength = 0;
+    int camera_fov = 3;
 
     tie(map, x_size, y_size) = loadMap(argv[1]);
     cout << "Map size: " << x_size << " , " << y_size << endl;
 
     // Planner
-    coveragePlanner coverage_planner;
+    coveragePlanner coverage_planner(camera_fov);
+    coverage_planner.decompose_map();
+    coverage_planner.traverse_cells();
+    std::vector<std::pair<int, int>> full_coverage_path = coverage_planner.build_path();
 
 }

@@ -15,6 +15,8 @@
 std::vector<Point2D> map_boundary;
 std::vector<std::vector<Point2D>> obstacles;
 
+coveragePlanner::coveragePlanner(int cam_fov) : camera_fov(cam_fov){}
+
 void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
 {
     int i = 0;
@@ -41,10 +43,6 @@ void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
     }
 }
 
-// static bool coveragePlanner::event_comparator(Event e1, Event e2)
-// {
-//     return (e1.x_ > e2.x_);
-// }
 
 Point2D draw_line_edge(int x, Edge edge)
 {
@@ -334,7 +332,7 @@ std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector
     return(cell_lawnmover_path(x_vec_floor, y_vec_floor,x_vec_ceiling, y_vec_ceiling));
 }   
 
-std::vector<Point2D> coveragePlanner::build_path()
+std::vector<std::pair<int, int>> coveragePlanner::build_path()
 {
     std::vector<std::pair<int, int>> coverage_path;
     for(Cell cell: cell_traversal_path)
@@ -347,6 +345,7 @@ std::vector<Point2D> coveragePlanner::build_path()
         std::vector<std::pair<int, int>> polygon_path = build_polygon_path(cell_vertices);
         coverage_path.insert(coverage_path.end(), polygon_path.begin(), polygon_path.end());
     }
+    return coverage_path;
 }
 
 
