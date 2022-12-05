@@ -28,6 +28,7 @@ void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
         if(current_vertex.x_ = previous_vertex.x_)
             continue;
 
+        inline_vertices.push_back(current_vertex);
         while(polygon[(i + 1) % polygon.size()].x_ == polygon[(i) % polygon.size()].x_)
         {
             inline_vertices.push_back(polygon[(i + 1) % polygon.size()]);
@@ -85,7 +86,7 @@ std::pair<Edge, Edge> coveragePlanner::get_floor_ceiling(Event event)
     return std::make_pair(floor, ceiling);
 }
 
-void coveragePlanner::clean_cells()
+void coveragePlanner::clean_cells(std::vector<Cell> closed_cells)
 {
     for(Cell cell: closed_cells)
     {
@@ -113,6 +114,8 @@ void coveragePlanner::clean_cells()
 
 void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles)
 {
+    std::vector<Cell> open_cells;
+    std::vector<Cell> closed_cells;
     get_event_type(map_boundary);
 
     for(int i=0; i<obstacles.size(); i++)
@@ -245,12 +248,12 @@ void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vect
 
     }
 
-    clean_cells();
+    clean_cells(closed_cells);
 }
 
 int coveragePlanner::leftmost_vertex_idx(std::vector<std::pair<int, int>> cell_vertices)
 {
-    std::pair<int, int> leftmost_vertex = std::make_pair(NULL, NULL);
+    std::pair<int, int> leftmost_vertex = std::make_pair(NULL, NULL);   // (-1, -1)
     int vertex_idx;
     int i = 0;
     for(std::pair<int, int> vertex: cell_vertices)
@@ -348,14 +351,14 @@ std::vector<Point2D> coveragePlanner::build_path()
 
 
 
-std::vector<int> coveragePlanner::vertical_aligned_edge(int x_current, std::vector<int> x_vec_floor, std::vector<int> y_vec_floor){
+std::vector<int> coveragePlanner::vertical_aligned_edge(int x_current, std::vector<int> x_vec, std::vector<int> y_vec){
     std::vector<int> points;
-    for(int i=1; i<x_vec_floor.size(); i++){
-        if(x_vec_floor[i] >= x_current){
-            points.push_back(x_vec_floor[i-1]); //x1
-            points.push_back(y_vec_floor[i-1]); //y1
-            points.push_back(x_vec_floor[i]); //x2
-            points.push_back(y_vec_floor[i]); //y2
+    for(int i=1; i<x_vec.size(); i++){
+        if(x_vec[i] >= x_current){
+            points.push_back(x_vec[i-1]); //x1
+            points.push_back(y_vec[i-1]); //y1
+            points.push_back(x_vec[i]); //x2
+            points.push_back(y_vec[i]); //y2
             return points;
         }
     }
@@ -436,7 +439,7 @@ void coveragePlanner::traverse_cells(void){
 
     while(!unvisited.empty()){
         
-        auto cell = map_cells.back();
+        auto cell = map_cells[path_list.back()];
         bool neighbors_visited = true;
         std::vector<int> next_ids;
 
@@ -454,7 +457,7 @@ void coveragePlanner::traverse_cells(void){
         int min_dist = INT_MIN;
         int closest_cell = -1;
         for(auto id : next_ids){
-            auto next_cell = map_cells[id];
+            auto next_cell = map_cells[id];             // find cell with the 'id_ = id' not index id
             double dist = cell_dist(cell, next_cell);
             if (dist < min_dist){
                 min_dist = dist;
@@ -465,7 +468,7 @@ void coveragePlanner::traverse_cells(void){
         path_list.push_back(closest_cell);
     }   
     for(int i=0; i<path_list.size(); i++){
-        cell_traversal_path.push_back(map_cells[path_list[i]]);
+        cell_traversal_path.push_back(map_cells[path_list[i]]);     // push cell with the 'id_ = id' not index id
     } 
 }   
 

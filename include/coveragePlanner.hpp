@@ -7,10 +7,8 @@ class coveragePlanner
 {
     int camera_fov;
 
-    std::vector<Event> events;
-    std::vector<Cell> open_cells;
-    std::vector<Cell> closed_cells;
-    std::vector<Edge> all_edges;
+    std::vector<Event> events;          
+    std::vector<Edge> all_edges;          
     std::vector<Cell> map_cells;
     std::vector<Cell> cell_traversal_path;
 
@@ -23,7 +21,7 @@ class coveragePlanner
     void decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles);    
     // static bool event_comparator(Event e1, Event e2);
     std::pair<Edge, Edge> get_floor_ceiling(Event event);
-    void clean_cells();
+    void clean_cells(std::vector<Cell> closed_cells);
 
     std::vector<Point2D> build_path();
     std::vector<std::pair<int, int>> build_polygon_path(std::vector<std::pair<int, int>> cell_vertices);

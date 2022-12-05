@@ -78,6 +78,7 @@ class Event{
 
                                                 find_max();
                                                 find_min();
+                                                set_event_type();
                                             }
 
         void find_max(void){
@@ -92,6 +93,25 @@ class Event{
                     y_max = v.y_;
             }
         };
+
+        void set_event_type(void){
+            if((prev_vertex_.x_ < x_) && (next_vertex_.x_ < x_)){
+                if(prev_vertex_.y_ > next_vertex_.y_)
+                    event_type_ = OUT;
+                else
+                    event_type_ = CLOSE;
+            }
+            else if((prev_vertex_.x_ > x_) && (next_vertex_.x_ > x_)){
+                if(prev_vertex_.y_ > next_vertex_.y_)
+                    event_type_ = OPEN;
+                else
+                    event_type_ = IN;
+            }
+            else if((prev_vertex_.x_ < x_) && (next_vertex_.x_ > x_))
+                event_type_ = FLOOR;
+            else
+                event_type_ = CEILING;
+        }
 };
 
 class Cell{
