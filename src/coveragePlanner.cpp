@@ -9,8 +9,8 @@
  * 
  */
 
-#include "../include/coveragePlanner.hpp"
-#include "../include/envDataTypes.hpp"
+#include "include/coveragePlanner.hpp"
+#include "include/envDataTypes.hpp"
 
 
 coveragePlanner::coveragePlanner(int cam_fov) : camera_fov(cam_fov){}

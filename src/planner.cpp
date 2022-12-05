@@ -18,7 +18,7 @@
 #include <assert.h> 
 #include <regex> 
 
-#include "../include/coveragePlanner.hpp"
+#include "include/coveragePlanner.hpp"
 
 
 using namespace std;
