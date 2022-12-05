@@ -43,6 +43,10 @@ struct Edge{
         bool operator==(const Edge& e){
             return((this->p1_ == e.p1_ && this->p2_ == e.p2_) || (this->p1_ == e.p2_ && this->p2_ == e.p1_));
         }    
+
+        void print_edge(void){
+            std::cout << "[(" << p1_.x_ << ", " << p1_.y_ << "), ("<< p2_.x_ << ", " << p2_.y_ << ")]";
+        }
 };
 
 /// @brief 
@@ -65,7 +69,7 @@ class Event{
         int x_;
         Edge prev_edge_;
         Edge next_edge_;
-        int y_max = INT_MAX, y_min = INT_MIN;
+        int y_max = INT_MIN, y_min = INT_MAX;
 
         Event(std::vector<Point2D>vertices, Point2D prev_vertex, Point2D next_vertex) : 
                                             vertices_(vertices), 
@@ -90,7 +94,7 @@ class Event{
         void find_min(void){
             for(Point2D v : vertices_){
                 if(v.y_ < y_min)
-                    y_max = v.y_;
+                    y_min = v.y_;
             }
         };
 
@@ -120,23 +124,23 @@ class Cell{
         Edge ceiling_;
         Edge floor_;
 
-        double x_left_;
-        double x_right_;
+        int x_left_=-1;
+        int x_right_=-1;
 
-        std::shared_ptr<std::vector<Cell>> neighbors_;
+        std::vector<Cell> neighbors_;
 
         std::shared_ptr<Cell> prev_;
         std::shared_ptr<Cell> next_;    
 
-        Cell();
-        Cell( Edge floor, Edge ceiling, double x_left, double x_right, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+        Cell(){};
+        Cell( Edge floor, Edge ceiling, int x_left, int x_right, std::vector<Cell> neighbors = {}) : 
                                                 ceiling_(ceiling), 
                                                 floor_(floor), 
                                                 x_left_(x_left),
                                                 x_right_(x_right),
                                                 neighbors_(neighbors)
                                                 {}
-        Cell( Edge floor, Edge ceiling, double x_left, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+        Cell( Edge floor, Edge ceiling, int x_left, std::vector<Cell> neighbors = {}) : 
                                                 ceiling_(ceiling), 
                                                 floor_(floor), 
                                                 x_left_(x_left),
@@ -148,22 +152,22 @@ class Cell{
         }            
 
         Point2D vertical_edge(double x, Edge edge){
-            double y = 0;
+            int y = edge.p1_.y_ + (edge.p2_.y_ - edge.p1_.y_) * (x - edge.p1_.x_) / (edge.p2_.x_ - edge.p1_.x_);
             return Point2D(x, y);
         }
 
-        std::shared_ptr<std::vector<Point2D>> get_vertices(){
+        std::vector<Point2D> get_vertices(){
             std::vector<Point2D> points;
             points.push_back(vertical_edge(x_left_, floor_));
             points.push_back(vertical_edge(x_right_, floor_));
             points.push_back(vertical_edge(x_right_, ceiling_));
             points.push_back(vertical_edge(x_left_, ceiling_));
 
-            return std::make_shared<std::vector<Point2D>>(points);
+            return std::vector<Point2D>(points);
         }
 
         Point2D get_centroid(){
-            auto points = *get_vertices();
+            auto points = get_vertices();
             int x_mean = 0, y_mean = 0;
             for(auto p : points){
                 x_mean += p.x_;
@@ -172,6 +176,23 @@ class Cell{
             x_mean /= points.size();
             y_mean /= points.size();
             return Point2D(x_mean, y_mean);
+        }
+
+        void print_cell_details(void){
+            std::cout << "\n---------------------------------------------------------------------------------------------- " << std::endl;
+            std::cout << "id: " << id_ << std::endl;
+            std::cout << "Cell Vertices" << std::endl;
+            for(Point2D p: get_vertices()){
+                std::cout << "(" << p.x_ << ", " << p.y_ << ") ";
+            }
+
+            std::cout << "\nLeft cell: " << x_left_ << std::endl;
+            std::cout << "Right Cell: " << x_right_ << std::endl;
+
+            std::cout << "Floor: ";
+            floor_.print_edge();
+            std::cout << "\nCeiling: ";
+            ceiling_.print_edge();
         }
 };
 
