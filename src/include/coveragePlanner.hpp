@@ -2,6 +2,9 @@
 #include<vector>
 #include "envDataTypes.hpp"
 #include <bits/stdc++.h>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/algorithm_ext.hpp>
 
 class coveragePlanner
 {
@@ -14,10 +17,11 @@ class coveragePlanner
 
     static bool event_comparator(Event e1, Event e2)
     {
-        return (e1.x_ > e2.x_);
+        return (e1.x_ < e2.x_);
     }
 
     void get_event_type(std::vector<Point2D> polygon);  
+    Point2D draw_line_edge(int x, Edge edge);
     std::pair<Edge, Edge> get_floor_ceiling(Event event);
     void clean_cells(std::vector<Cell> closed_cells);
 
