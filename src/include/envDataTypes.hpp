@@ -111,10 +111,31 @@ class Event{
                 else
                     event_type_ = IN;
             }
-            else if((prev_vertex_.x_ < x_) && (next_vertex_.x_ > x_))
+            else if((prev_vertex_.x_ < x_) && (next_vertex_.x_ > x_)){
                 event_type_ = FLOOR;
-            else
+            }
+            else{
                 event_type_ = CEILING;
+            }
+        }
+
+        void print_event_details(void){
+            std::cout << "\n---------------------------------------------------------------------------------------------- " << std::endl;
+            std::cout << "Event Type: " << event_type_ << std::endl;
+            std::cout << "x: " << x_ << std::endl;
+            std::cout << "Event Vertices" << std::endl;
+            for(Point2D p: vertices_){
+                std::cout << "(" << p.x_ << ", " << p.y_ << ") ";
+            }
+
+            std::cout << "\nPrev vertex: " << "(" << prev_vertex_.x_ << ", " << prev_vertex_.y_ << ") " << std::endl;
+            std::cout << "Next vertex: " << "(" << next_vertex_.x_ << ", " << next_vertex_.y_ << ") " << std::endl;
+
+            std::cout << "Prev: ";
+            prev_edge_.print_edge();
+            std::cout << "\nNext: ";
+            next_edge_.print_edge();
+            std::cout << "\n---------------------------------------------------------------------------------------------- " << std::endl;
         }
 };
 
@@ -193,6 +214,7 @@ class Cell{
             floor_.print_edge();
             std::cout << "\nCeiling: ";
             ceiling_.print_edge();
+            std::cout << "\n---------------------------------------------------------------------------------------------- " << std::endl;
         }
 };
 
