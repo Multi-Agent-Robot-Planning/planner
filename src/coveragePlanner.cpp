@@ -16,33 +16,74 @@
 coveragePlanner::coveragePlanner(int cam_fov) : camera_fov(cam_fov){}
 
 // Decompose
+// void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
+// {
+//     int i = 0;
+
+//     std::cout << "Get event type" << " polygon size: " << polygon.size() << std::endl;
+//     while(i<polygon.size())
+//     {
+//         // std::cout << "i: " << i << std::endl;
+//         int n = polygon.size();
+//         Point2D previous_vertex = (i == 0) ? polygon[n-1] : polygon[i-1];
+//         std::cout << "prev: " << previous_vertex.x_ << ", " << previous_vertex.y_ << std::endl;
+//         Point2D current_vertex = polygon[(i) % polygon.size()];
+//         std::cout << "current: " << current_vertex.x_ << ", " << current_vertex.y_ << std::endl;
+//         std::vector<Point2D> inline_vertices;
+
+//         if(current_vertex.x_ == previous_vertex.x_){
+//             i++;
+//             continue;
+//         }
+
+//         inline_vertices.push_back(current_vertex);
+//         while(polygon[(i + 1) % polygon.size()].x_ == polygon[(i) % polygon.size()].x_)
+//         {
+//             inline_vertices.push_back(polygon[(i + 1) % polygon.size()]);
+//             i++;
+//         }
+
+//         Point2D next_vertex = (i == (n-1)) ? polygon[0] : polygon[i+1];
+//         // Point2D next_vertex =  polygon[(i + 1) % polygon.size()];
+//         std::cout << "next: " << next_vertex.x_ << ", " << next_vertex.y_ << std::endl;
+//         events.push_back(Event(inline_vertices, previous_vertex, next_vertex));
+//         i++;
+//     }
+// }
+
 void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
 {
     int i = 0;
-
+    int j = 0;
     std::cout << "Get event type" << " polygon size: " << polygon.size() << std::endl;
     while(i<polygon.size())
     {
-        // std::cout << "i: " << i << std::endl;
-        Point2D previous_vertex = polygon[(i-1) % polygon.size()];
-        Point2D current_vertex = polygon[(i) % polygon.size()];
+        int n = polygon.size();
+        Point2D previous_vertex = (j == 0) ? polygon[n-1] : polygon[j-1];
+        Point2D current_vertex = polygon[(j) % polygon.size()];
         std::vector<Point2D> inline_vertices;
 
         if(current_vertex.x_ == previous_vertex.x_){
             i++;
+            j++;
+            j = j%n;
             continue;
         }
 
         inline_vertices.push_back(current_vertex);
-        while(polygon[(i + 1) % polygon.size()].x_ == polygon[(i) % polygon.size()].x_)
+        while(polygon[(j + 1) % polygon.size()].x_ == polygon[(j) % polygon.size()].x_)
         {
-            inline_vertices.push_back(polygon[(i + 1) % polygon.size()]);
+            inline_vertices.push_back(polygon[(j + 1) % polygon.size()]);
             i++;
+            j++;
+            j = j%n;
         }
 
-        Point2D next_vertex =  polygon[(i + 1) % polygon.size()];
+        Point2D next_vertex = (j == (n-1)) ? polygon[0] : polygon[j+1];
         events.push_back(Event(inline_vertices, previous_vertex, next_vertex));
         i++;
+        j++;
+        j = j%n;
     }
 }
 
@@ -99,7 +140,6 @@ void coveragePlanner::clean_cells(std::vector<Cell> closed_cells)
         for(Cell neighbor : cell.neighbors_)
         {
             std::vector<Cell> meta_neighbors = neighbor.neighbors_;
-            // int idx = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell) != meta_neighbors.end();
             int idx;
             auto it = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell);
             if(it != meta_neighbors.end()){
@@ -128,20 +168,6 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
         map_boundary.push_back(point);
     }
 
-    // std::vector<std::vector<Point2D>> obstacles;
-    // for(int i=0; i<obstacles_pair.size(); i++)
-    // {
-    //     std::vector<Point2D> obstacle;
-    //     for(int j=0; j<obstacles_pair[i].size(); i++)
-    //     {
-    //         Point2D point;
-    //         point.x_ = (obstacles_pair.at(i).at(j)).first;
-    //         point.y_ = (obstacles_pair.at(i).at(j)).second;
-    //         obstacle.push_back(point);
-    //     }
-    //     obstacles.push_back(obstacle);
-    // }
-
     std::vector<std::vector<Point2D>> obstacles;
     for(auto obstacle_vec : obstacles_pair)
     {
@@ -149,6 +175,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
         for(auto obs : obstacle_vec)
         {
             obstacle.push_back(Point2D(obs.first, obs.second));
+            std::cout << "(" << obs.first << ", " << obs.second << ") " ;
         }
         obstacles.push_back(obstacle);
     }
@@ -157,14 +184,15 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
     std::vector<Cell> open_cells;
     std::vector<Cell> closed_cells;
     get_event_type(map_boundary);
-    std::cout << std::endl << "Map event type: " << events[0].event_type_ << std::endl;
 
     for(int i=0; i<obstacles.size(); i++)
     {
         get_event_type(obstacles[i]);
     }
     std::sort(events.begin(), events.end(), event_comparator);
-
+    for(auto event : events){
+        event.print_event_details();
+    }
     int temp_id = 0;
     for(Event event: events)
     {
@@ -241,6 +269,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
                 if(event.prev_edge_ == cell.floor_ && event.next_edge_ == cell.ceiling_)
                 {
                     cell.id_ = temp_id;
+                    cell.x_right_ = event.x_;
                     closed_cells.push_back(cell);
                     open_cells.erase(open_cells.begin() + i);
                     temp_id++;
@@ -304,7 +333,6 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
 
     clean_cells(closed_cells);
 
-    std::cout << "Map cell: " << map_cells.size() << std::endl;
     for(auto cell : map_cells){
         cell.print_cell_details();
     }
@@ -394,9 +422,8 @@ std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector
     return(cell_lawnmover_path(x_vec_floor, y_vec_floor,x_vec_ceiling, y_vec_ceiling));
 }   
 
-std::vector<std::pair<int, int>> coveragePlanner::build_path()
+void coveragePlanner::build_path()
 {
-    std::vector<std::pair<int, int>> coverage_path;
     for(Cell cell: cell_traversal_path)
     {
         std::vector<std::pair<int, int>> cell_vertices;
@@ -405,9 +432,12 @@ std::vector<std::pair<int, int>> coveragePlanner::build_path()
             cell_vertices.push_back(std::make_pair(p.x_, p.y_));
         }
         std::vector<std::pair<int, int>> polygon_path = build_polygon_path(cell_vertices);
-        coverage_path.insert(coverage_path.end(), polygon_path.begin(), polygon_path.end());
+        cell_coverage_path.push_back(polygon_path);
     }
-    return coverage_path;
+}
+
+std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_cell_coverage_path(){
+    return cell_coverage_path;
 }
 
 std::vector<int> coveragePlanner::vertical_aligned_edge(int x_current, std::vector<int> x_vec, std::vector<int> y_vec){

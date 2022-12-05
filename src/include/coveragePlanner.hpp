@@ -14,6 +14,7 @@ class coveragePlanner
     std::vector<Edge> all_edges;          
     std::vector<Cell> map_cells;
     std::vector<Cell> cell_traversal_path;
+    std::vector<std::vector<std::pair<int, int>>> cell_coverage_path;
 
     static bool event_comparator(Event e1, Event e2)
     {
@@ -39,5 +40,6 @@ class coveragePlanner
         coveragePlanner(int cam_fov);
         void decompose_map(std::vector<std::pair<int, int>> map_boundary_pair, std::vector<std::vector<std::pair<int, int>>> obstacles_pair);  
         void traverse_cells();
-        std::vector<std::pair<int, int>> build_path();
+        void build_path();
+        std::vector<std::vector<std::pair<int, int>>> get_cell_coverage_path();
 };

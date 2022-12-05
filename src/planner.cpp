@@ -92,20 +92,26 @@ int main(int argc, char** argv) {
     int planlength = 0;
     int camera_fov = 3;
 
-    tie(map, x_size, y_size) = loadMap(argv[1]);
-    cout << "Map size: " << x_size << " , " << y_size << endl;
+    // tie(map, x_size, y_size) = loadMap(argv[1]);
+    // cout << "Map size: " << x_size << " , " << y_size << endl;
 
     // Planner
     coveragePlanner coverage_planner(camera_fov);
-    std::vector<std::pair<int, int>> map_boundary({std::make_pair(0, 0), std::make_pair(50, 0), std::make_pair(50, 50), std::make_pair(0, 50)});
-    std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(20, 10), std::make_pair(10, 25), std::make_pair(20, 40), std::make_pair(40, 40), std::make_pair(40,10)}});
+    // std::vector<std::pair<int, int>> map_boundary({std::make_pair(0, 0), std::make_pair(50, 0), std::make_pair(50, 50), std::make_pair(0, 50)});
+    // std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(20, 10), std::make_pair(10, 25), std::make_pair(20, 40), std::make_pair(40, 40), std::make_pair(40,10)}});
     
-    std::cout << "Map" << endl;
+    std::vector<std::pair<int, int>> map_boundary({std::make_pair(0, 0), std::make_pair(50, 0), std::make_pair(50, 50), std::make_pair(0, 50)});
+    std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(16, 12), std::make_pair(16, 43), std::make_pair(18, 43), std::make_pair(18, 12)}, 
+                                {std::make_pair(23, 12), std::make_pair(23, 43), std::make_pair(25, 43), std::make_pair(25, 12)},
+                                {std::make_pair(38, 12), std::make_pair(38, 43), std::make_pair(41, 43), std::make_pair(41, 12)}});
+    
+
+    std::cout << "\nMap" << endl;
     for(auto p : map_boundary){
         cout << "(" << p.first << ", " << p.second << ")" << "\t";
     }
 
-    std::cout << "Obstacles" << endl;
+    std::cout << endl << "Obstacles" << endl;
     for(auto obs : obstacles){
         for(auto p : obs)
             cout << "(" << p.first << ", " << p.second << ")" << "\t";
@@ -113,10 +119,13 @@ int main(int argc, char** argv) {
     }
     coverage_planner.decompose_map(map_boundary, obstacles);
     coverage_planner.traverse_cells();
-    std::vector<std::pair<int, int>> full_coverage_path = coverage_planner.build_path();
+    coverage_planner.build_path();
 
-    std::cout << "Path" << endl;
-    for(auto p : full_coverage_path){
-        cout << "(" << p.first << ", " << p.second << ")" << "\t";
+    std::vector<std::vector<std::pair<int, int>>> full_cell_coverage_path = coverage_planner.get_cell_coverage_path();
+    std::cout << endl << "Path" << endl;
+    for(auto cell_path : full_cell_coverage_path){
+        for(auto p : cell_path)
+            cout << "(" << p.first << ", " << p.second << ") ";
+        cout << "\n";
     }
 }
