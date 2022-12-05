@@ -12,8 +12,6 @@
 #include "../include/coveragePlanner.hpp"
 #include "../include/envDataTypes.hpp"
 
-std::vector<Point2D> map_boundary;
-std::vector<std::vector<Point2D>> obstacles;
 
 coveragePlanner::coveragePlanner(int cam_fov) : camera_fov(cam_fov){}
 
@@ -110,8 +108,30 @@ void coveragePlanner::clean_cells(std::vector<Cell> closed_cells)
     }
 }
 
-void coveragePlanner::decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles)
+void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundary_pair, std::vector<std::vector<std::pair<int, int>>> obstacles_pair)
 {
+    std::vector<Point2D> map_boundary;
+    for(int i=0; i<map_boundary_pair.size(); i++)
+    {
+        Point2D point;
+        point.x_ = map_boundary_pair[i].first;
+        point.y_ = map_boundary_pair[i].second;
+        map_boundary.push_back(point);
+    }
+
+    std::vector<std::vector<Point2D>> obstacles;
+    for(int i=0; i<obstacles.size(); i++)
+    {
+        for(int j=0; j<obstacles_pair[i].size(); i++)
+        {
+            Point2D point;
+            point.x_ = (obstacles_pair.at(i).at(j)).first;
+            point.y_ = (obstacles_pair.at(i).at(j)).second;
+            map_boundary.push_back(point);
+        }
+    }
+
+
     std::vector<Cell> open_cells;
     std::vector<Cell> closed_cells;
     get_event_type(map_boundary);

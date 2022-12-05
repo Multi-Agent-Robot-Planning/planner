@@ -33,7 +33,7 @@ class coveragePlanner
 
     public:
         coveragePlanner(int cam_fov);
-        void decompose_map(std::vector<Point2D> map_boundary, std::vector<std::vector<Point2D>> obstacles);  
+        void decompose_map(std::vector<std::pair<int, int>> map_boundary_pair, std::vector<std::vector<std::pair<int, int>>> obstacles_pair);  
         void traverse_cells();
         std::vector<std::pair<int, int>> build_path();
 };
