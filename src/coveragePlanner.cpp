@@ -95,7 +95,12 @@ void coveragePlanner::clean_cells(std::vector<Cell> closed_cells)
         for(Cell neighbor: *(cell.neighbors_))
         {
             std::vector<Cell> meta_neighbors = *(neighbor.neighbors_);
-            int idx = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell) != meta_neighbors.end();
+            // int idx = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell) != meta_neighbors.end();
+            int idx;
+            auto it = std::find(meta_neighbors.begin(), meta_neighbors.end(), cell);
+            if(it != meta_neighbors.end()){
+                idx = (it - meta_neighbors.begin());
+            }
             
             std::vector<Cell> new_meta_neighbors;
             new_meta_neighbors.push_back(meta_neighbors[0, idx]);
@@ -155,8 +160,8 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(floor == cell.floor_ && ceiling == cell.ceiling_)
                 {
-                    Cell lower_cell(floor, event.prev_edge_, event.x_, NULL, std::make_shared<std::vector<Cell>>(cell));
-                    Cell higher_cell(event.next_edge_, ceiling, event.x_, NULL, std::make_shared<std::vector<Cell>>(cell));
+                    Cell lower_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(cell));
+                    Cell higher_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(cell));
                     open_cells.push_back(lower_cell);
                     open_cells.push_back(higher_cell);
                     cell.x_right_ = event.x_;
@@ -188,7 +193,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
                 }
                 i++;
             }
-            Cell new_cell(floor, ceiling, event.x_, NULL, std::make_shared<std::vector<Cell>>(upper_cell, lower_cell)); 
+            Cell new_cell(floor, ceiling, event.x_, std::make_shared<std::vector<Cell>>(upper_cell, lower_cell)); 
             open_cells.erase(open_cells.begin()+std::max(upperCell_idx, lowerCell_idx));
             open_cells.erase(open_cells.begin()+std::min(upperCell_idx, lowerCell_idx));
             upper_cell.x_right_ = event.x_;
@@ -201,7 +206,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
         }
         else if(event.event_type_ == OPEN)
         {
-            open_cells.push_back(Cell(event.next_edge_, event.prev_edge_, event.x_, NULL)); //push back a new cell
+            open_cells.push_back(Cell(event.next_edge_, event.prev_edge_, event.x_)); //push back a new cell
         }
         else if(event.event_type_ == CLOSE)
         {
@@ -224,7 +229,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(event.prev_edge_ == cell.floor_ && ceiling == cell.ceiling_)
                 {
-                    Cell new_cell(event.next_edge_, ceiling, event.x_, NULL, std::make_shared<std::vector<Cell>>(cell)); 
+                    Cell new_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(cell)); 
                     cell.x_right_ = event.x_;
                     cell.neighbors_->push_back(new_cell);
                     closed_cells.push_back(cell);
@@ -242,7 +247,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(floor == cell.floor_ && event.next_edge_ == cell.ceiling_)
                 {
-                    Cell new_cell(floor, event.prev_edge_, event.x_, NULL, std::make_shared<std::vector<Cell>>(cell)); 
+                    Cell new_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(cell)); 
                     cell.x_right_ = event.x_;
                     cell.neighbors_->push_back(new_cell);
                     closed_cells.push_back(cell);
@@ -271,12 +276,12 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
 
 int coveragePlanner::leftmost_vertex_idx(std::vector<std::pair<int, int>> cell_vertices)
 {
-    std::pair<int, int> leftmost_vertex = std::make_pair(NULL, NULL);   // (-1, -1)
+    std::pair<int, int> leftmost_vertex = std::make_pair(-1, -1);   // (-1, -1)
     int vertex_idx;
     int i = 0;
     for(std::pair<int, int> vertex: cell_vertices)
     {
-        if(leftmost_vertex.first == NULL || vertex.first < leftmost_vertex.first)
+        if(leftmost_vertex.first == -1 || vertex.first < leftmost_vertex.first)
         {
             leftmost_vertex = vertex;
             vertex_idx = i;

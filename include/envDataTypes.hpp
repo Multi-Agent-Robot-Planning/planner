@@ -136,6 +136,16 @@ class Cell{
                                                 x_right_(x_right),
                                                 neighbors_(neighbors)
                                                 {}
+        Cell( Edge floor, Edge ceiling, double x_left, std::shared_ptr<std::vector<Cell>> neighbors = nullptr) : 
+                                                ceiling_(ceiling), 
+                                                floor_(floor), 
+                                                x_left_(x_left),
+                                                neighbors_(neighbors)
+                                                {}
+
+        bool operator==(const Cell &c) const {
+            return c.id_ == id_;
+        }            
 
         Point2D vertical_edge(double x, Edge edge){
             double y = 0;

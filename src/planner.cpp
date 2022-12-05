@@ -97,8 +97,26 @@ int main(int argc, char** argv) {
 
     // Planner
     coveragePlanner coverage_planner(camera_fov);
-    coverage_planner.decompose_map();
+    std::vector<std::pair<int, int>> map_boundary({std::make_pair(0, 0), std::make_pair(50, 0), std::make_pair(50, 50), std::make_pair(0, 50)});
+    std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(20, 10), std::make_pair(10, 25), std::make_pair(20, 40), std::make_pair(40, 40), std::make_pair(40,10)}});
+    
+    std::cout << "Map" << endl;
+    for(auto p : map_boundary){
+        cout << "(" << p.first << ", " << p.second << ")" << "\t";
+    }
+
+    std::cout << "Obstacles" << endl;
+    for(auto obs : obstacles){
+        for(auto p : obs)
+            cout << "(" << p.first << ", " << p.second << ")" << "\t";
+        cout << endl;
+    }
+    coverage_planner.decompose_map(map_boundary, obstacles);
     coverage_planner.traverse_cells();
     std::vector<std::pair<int, int>> full_coverage_path = coverage_planner.build_path();
 
+    std::cout << "Path" << endl;
+    for(auto p : full_coverage_path){
+        cout << "(" << p.first << ", " << p.second << ")" << "\t";
+    }
 }
