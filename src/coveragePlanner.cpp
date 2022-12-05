@@ -161,8 +161,8 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(floor == cell.floor_ && ceiling == cell.ceiling_)
                 {
-                    Cell lower_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(cell));
-                    Cell higher_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(cell));
+                    Cell lower_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(std::vector<Cell>({cell})));
+                    Cell higher_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(std::vector<Cell>({cell})));
                     open_cells.push_back(lower_cell);
                     open_cells.push_back(higher_cell);
                     cell.x_right_ = event.x_;
@@ -196,7 +196,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
                 }
                 i++;
             }
-            Cell new_cell(floor, ceiling, event.x_, std::make_shared<std::vector<Cell>>(upper_cell, lower_cell)); 
+            Cell new_cell(floor, ceiling, event.x_, std::make_shared<std::vector<Cell>>(std::vector<Cell>({upper_cell, lower_cell}))); 
             open_cells.erase(open_cells.begin()+std::max(upperCell_idx, lowerCell_idx));
             open_cells.erase(open_cells.begin()+std::min(upperCell_idx, lowerCell_idx));
             upper_cell.x_right_ = event.x_;
@@ -238,7 +238,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(event.prev_edge_ == cell.floor_ && ceiling == cell.ceiling_)
                 {
-                    Cell new_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(cell)); 
+                    Cell new_cell(event.next_edge_, ceiling, event.x_, std::make_shared<std::vector<Cell>>(std::vector<Cell>({cell}))); 
                     cell.x_right_ = event.x_;
                     cell.neighbors_->push_back(new_cell);
                     cell.id_ = temp_id;
@@ -258,7 +258,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
             {
                 if(floor == cell.floor_ && event.next_edge_ == cell.ceiling_)
                 {
-                    Cell new_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(cell)); 
+                    Cell new_cell(floor, event.prev_edge_, event.x_, std::make_shared<std::vector<Cell>>(std::vector<Cell>({cell}))); 
                     cell.x_right_ = event.x_;
                     cell.neighbors_->push_back(new_cell);
                     cell.id_ = temp_id;
