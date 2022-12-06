@@ -15,6 +15,7 @@ class coveragePlanner
     std::vector<Cell> map_cells;
     std::vector<Cell> cell_traversal_path;
     std::vector<std::vector<std::pair<int, int>>> cell_coverage_path;
+    std::vector<std::vector<std::pair<int, int>>> discritized_cell_coverage_path;
 
     static bool event_comparator(Event e1, Event e2)
     {
@@ -42,4 +43,5 @@ class coveragePlanner
         void traverse_cells();
         void build_path();
         std::vector<std::vector<std::pair<int, int>>> get_cell_coverage_path();
+        std::vector<std::vector<std::pair<int, int>>> get_discritized_cell_coverage_path();
 };

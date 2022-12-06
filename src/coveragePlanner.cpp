@@ -440,6 +440,63 @@ std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_cell_coverage
     return cell_coverage_path;
 }
 
+std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discritized_cell_coverage_path(){
+
+    // std::cout<<"Inside discritized path"<<std::endl;
+    
+    for(int i=0; i<cell_coverage_path.size(); i++)
+    {
+        std::vector<std::pair<int, int>> vec1;
+        for(int j=0; j<cell_coverage_path[i].size()-1; j++)
+        {
+            // std::cout<<"Inside second for loop"<<std::endl;
+
+            std::pair<int, int> point1 = cell_coverage_path[i][j];
+            // std::cout<<"Got first point"<<std::endl;
+            std::pair<int, int> point2 = cell_coverage_path[i][j+1];
+            // std::cout<<"Got second point"<<std::endl;
+
+            if(point1.first == point2.first)
+                ;
+            else
+            {
+                int i = point1.first;
+                while(i<point2.first)
+                {
+                    vec1.push_back(std::make_pair(i, point1.second));
+                    // discritized_cell_coverage_path[i].push_back(std::make_pair(i, point1.second));
+                    i++;
+                }
+            }
+
+            if(point1.second == point2.second)
+                ;
+            else if(point2.second > point1.second)
+            {
+                int i = point1.second;
+                while(i<point2.second)
+                {
+                    vec1.push_back(std::make_pair(point1.first, i));
+                    i++;
+                }
+            }
+            else
+            {
+                int i = point1.second;
+                while(i>point2.second)
+                {
+                    vec1.push_back(std::make_pair(point1.first, i));
+                    i--;
+                }
+            }
+        }
+        std::pair<int, int> last_point = cell_coverage_path[i][cell_coverage_path[i].size()-1];
+        vec1.push_back(std::make_pair(last_point.first, last_point.second));
+        discritized_cell_coverage_path.push_back(vec1);
+    }
+    return discritized_cell_coverage_path;
+}
+
 std::vector<int> coveragePlanner::vertical_aligned_edge(int x_current, std::vector<int> x_vec, std::vector<int> y_vec){
     std::vector<int> points;
     for(int i=1; i<x_vec.size(); i++){
