@@ -101,9 +101,9 @@ int main(int argc, char** argv) {
     // std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(20, 10), std::make_pair(10, 25), std::make_pair(20, 40), std::make_pair(40, 40), std::make_pair(40,10)}});
     
     std::vector<std::pair<int, int>> map_boundary({std::make_pair(0, 0), std::make_pair(50, 0), std::make_pair(50, 50), std::make_pair(0, 50)});
-    std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(16, 12), std::make_pair(16, 43), std::make_pair(18, 43), std::make_pair(18, 12)}, 
-                                {std::make_pair(23, 12), std::make_pair(23, 43), std::make_pair(25, 43), std::make_pair(25, 12)},
-                                {std::make_pair(38, 12), std::make_pair(38, 43), std::make_pair(41, 43), std::make_pair(41, 12)}});
+    std::vector<std::vector<std::pair<int, int>>> obstacles({{std::make_pair(15, 7), std::make_pair(15, 38), std::make_pair(17, 38), std::make_pair(17, 7)}, 
+                                {std::make_pair(22, 7), std::make_pair(22, 38), std::make_pair(24, 38), std::make_pair(24, 7)},
+                                {std::make_pair(37, 7), std::make_pair(37, 38), std::make_pair(40, 38), std::make_pair(40, 7)}});
     
 
     std::cout << "\nMap" << endl;

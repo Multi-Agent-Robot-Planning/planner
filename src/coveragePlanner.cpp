@@ -160,22 +160,86 @@ void coveragePlanner::clean_cells(std::vector<Cell> closed_cells)
 void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundary_pair, std::vector<std::vector<std::pair<int, int>>> obstacles_pair)
 {
     std::vector<Point2D> map_boundary;
+    // std::vector<Point2D> temp_map_boundary;
+    // std::vector<Point2D> inflated_map_boundary;
+    int x_mean = 0, y_mean = 0;
+    for(auto p : map_boundary_pair){
+        x_mean += p.first;
+        y_mean += p.second;
+    }
+    x_mean /= map_boundary_pair.size();
+    y_mean /= map_boundary_pair.size();
     for(int i=0; i<map_boundary_pair.size(); i++)
     {
         Point2D point;
-        point.x_ = map_boundary_pair[i].first;
-        point.y_ = map_boundary_pair[i].second;
+        if(x_mean>map_boundary_pair[i].first)
+        {
+            point.x_ = map_boundary_pair[i].first + std::floor(camera_fov/2);
+        }
+        else
+        {
+            point.x_ = map_boundary_pair[i].first - std::floor(camera_fov/2);
+        }
+
+        if(y_mean>map_boundary_pair[i].second)
+        {
+            point.y_ = map_boundary_pair[i].second + std::floor(camera_fov/2);
+        }
+        else
+        {
+            point.y_ = map_boundary_pair[i].second - std::floor(camera_fov/2);
+        }
+        // std::cout << "(" << point.x_ << ", " << point.y_ << ") " ;
         map_boundary.push_back(point);
     }
+
+    
+    // for(auto obs : obstacles_pair)
+    // {
+    //     int x_mean = 0, y_mean = 0;
+    //     for(auto p: obs)
+    //     {
+    //         x_mean += p.first;
+    //         y_mean += p.second;
+    //     }
+    // }
+    // x_mean /= map_boundary_pair.size();
+    // y_mean /= map_boundary_pair.size();
 
     std::vector<std::vector<Point2D>> obstacles;
     for(auto obstacle_vec : obstacles_pair)
     {
+        int x_mean = 0, y_mean = 0;
+        for(auto p: obstacle_vec)
+        {
+            x_mean += p.first;
+            y_mean += p.second;
+        }
+        x_mean /= obstacle_vec.size();
+        y_mean /= obstacle_vec.size();
         std::vector<Point2D> obstacle;
         for(auto obs : obstacle_vec)
         {
-            obstacle.push_back(Point2D(obs.first, obs.second));
-            std::cout << "(" << obs.first << ", " << obs.second << ") " ;
+            Point2D point;
+            if(x_mean>obs.first)
+            {
+                point.x_ = obs.first - std::floor(camera_fov/2);
+            }
+            else
+            {
+                point.x_ = obs.first + std::floor(camera_fov/2);
+            }
+
+            if(y_mean>obs.second)
+            {
+                point.y_ = obs.second - std::floor(camera_fov/2);
+            }
+            else
+            {
+                point.y_ = obs.second + std::floor(camera_fov/2);
+            }
+            obstacle.push_back(point);
+            std::cout << "(" << point.x_ << ", " << point.y_ << ") " ;
         }
         obstacles.push_back(obstacle);
     }
