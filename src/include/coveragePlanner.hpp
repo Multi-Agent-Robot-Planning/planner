@@ -43,5 +43,5 @@ class coveragePlanner
         void traverse_cells();
         void build_path();
         std::vector<std::vector<std::pair<int, int>>> get_cell_coverage_path();
-        std::vector<std::vector<std::pair<int, int>>> get_discritized_cell_coverage_path();
+        std::vector<std::vector<std::pair<int, int>>> get_discretized_cell_coverage_path();
 };

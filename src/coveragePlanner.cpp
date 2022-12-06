@@ -504,7 +504,7 @@ std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_cell_coverage
     return cell_coverage_path;
 }
 
-std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discritized_cell_coverage_path(){
+std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discretized_cell_coverage_path(){
 
     // std::cout<<"Inside discritized path"<<std::endl;
     
@@ -522,7 +522,7 @@ std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discritized_c
 
             if(point1.first == point2.first)
                 ;
-            else
+            else if(point1.first < point2.first)
             {
                 int i = point1.first;
                 while(i<point2.first)
@@ -530,6 +530,16 @@ std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discritized_c
                     vec1.push_back(std::make_pair(i, point1.second));
                     // discritized_cell_coverage_path[i].push_back(std::make_pair(i, point1.second));
                     i++;
+                }
+            }
+            else 
+            {
+                int i = point1.first;
+                while(i>point2.first)
+                {
+                    vec1.push_back(std::make_pair(i, point1.second));
+                    // discritized_cell_coverage_path[i].push_back(std::make_pair(i, point1.second));
+                    i--;
                 }
             }
 
