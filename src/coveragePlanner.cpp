@@ -254,9 +254,9 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
         get_event_type(obstacles[i]);
     }
     std::sort(events.begin(), events.end(), event_comparator);
-    for(auto event : events){
-        event.print_event_details();
-    }
+    // for(auto event : events){
+    //     event.print_event_details();
+    // }
     int temp_id = 0;
     for(Event event: events)
     {
@@ -396,9 +396,8 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
     }
 
     clean_cells(closed_cells);
-
-    for(auto cell : map_cells){
-        cell.print_cell_details();
+    for(int i=0; i<map_cells.size(); i++){
+        map_cells[i].id_ = i;
     }
 }
 
@@ -488,36 +487,38 @@ std::vector<std::pair<int, int>> coveragePlanner::build_polygon_path(std::vector
 
 void coveragePlanner::build_path()
 {
-    for(Cell cell: cell_traversal_path)
+    for(int i=0; i<map_cells.size(); i++)
     {
         std::vector<std::pair<int, int>> cell_vertices;
-        for(Point2D p: cell.get_vertices())
+        for(Point2D p: map_cells[i].get_vertices())
         {
             cell_vertices.push_back(std::make_pair(p.x_, p.y_));
         }
         std::vector<std::pair<int, int>> polygon_path = build_polygon_path(cell_vertices);
+        map_cells[i].path_start_ = polygon_path.front();
+        map_cells[i].path_end_ = polygon_path.back();
         cell_coverage_path.push_back(polygon_path);
     }
 }
 
 std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_cell_coverage_path(){
-    return cell_coverage_path;
+    build_path();
+    sort_cell_traversal();
+    return cell_coverage_path_sorted;
 }
 
 std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discretized_cell_coverage_path(){
 
-    // std::cout<<"Inside discritized path"<<std::endl;
-    
-    for(int i=0; i<cell_coverage_path.size(); i++)
+    for(int i=0; i<cell_coverage_path_sorted.size(); i++)
     {
         std::vector<std::pair<int, int>> vec1;
-        for(int j=0; j<cell_coverage_path[i].size()-1; j++)
+        for(int j=0; j<cell_coverage_path_sorted[i].size()-1; j++)
         {
             // std::cout<<"Inside second for loop"<<std::endl;
 
-            std::pair<int, int> point1 = cell_coverage_path[i][j];
+            std::pair<int, int> point1 = cell_coverage_path_sorted[i][j];
             // std::cout<<"Got first point"<<std::endl;
-            std::pair<int, int> point2 = cell_coverage_path[i][j+1];
+            std::pair<int, int> point2 = cell_coverage_path_sorted[i][j+1];
             // std::cout<<"Got second point"<<std::endl;
 
             if(point1.first == point2.first)
@@ -564,7 +565,7 @@ std::vector<std::vector<std::pair<int, int>>> coveragePlanner::get_discretized_c
                 }
             }
         }
-        std::pair<int, int> last_point = cell_coverage_path[i][cell_coverage_path[i].size()-1];
+        std::pair<int, int> last_point = cell_coverage_path_sorted[i][cell_coverage_path_sorted[i].size()-1];
         vec1.push_back(std::make_pair(last_point.first, last_point.second));
         discritized_cell_coverage_path.push_back(vec1);
     }
@@ -645,6 +646,69 @@ double coveragePlanner::cell_dist(Cell cell1, Cell cell2){
     Point2D centroid2 = cell2.get_centroid();
     double dist = sqrt(pow((centroid1.x_ - centroid2.x_), 2) + pow((centroid1.y_ - centroid2.y_), 2));
     return dist;
+}
+
+double coveragePlanner::start_end_dist(Cell cell1, Cell cell2){
+    std::pair<int, int> end1 = cell1.path_end_;
+    std::pair<int, int> start2 = cell2.path_start_;
+
+    double dist = sqrt(pow((end1.first - start2.first), 2) + pow((end1.second - start2.second), 2));
+    return dist;
+}
+
+void coveragePlanner::sort_cell_traversal(){
+
+    std::vector<int> unvisited;
+    for(int i=0; i<map_cells.size(); i++)
+    {
+        unvisited.push_back(i);
+    }
+    unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), 0), unvisited.end());
+    std::vector<int> path_list;
+    path_list.push_back(0);
+
+    while(!unvisited.empty()){
+        
+        auto cell = map_cells[path_list.back()];
+        bool neighbors_visited = true;
+        std::vector<int> next_ids;
+
+        for(auto neighbor : cell.neighbors_){
+            if (std::find(unvisited.begin(), unvisited.end(), neighbor.id_) != unvisited.end()){
+                next_ids.push_back(neighbor.id_);
+                neighbors_visited = false;
+            }
+        }
+
+        if(neighbors_visited)
+            next_ids.assign(unvisited.begin(), unvisited.end()); 
+    
+
+        int min_dist = INT_MAX;
+        int closest_cell = -1;
+        for(auto id : next_ids){
+            auto next_cell = map_cells[id];             // find cell with the 'id_ = id' not index id
+            double dist = start_end_dist(cell, next_cell);
+            if (dist < min_dist){
+                min_dist = dist;
+                closest_cell = id;
+            }
+        }
+        unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), closest_cell), unvisited.end());
+        path_list.push_back(closest_cell);
+    }   
+    for(int i=0; i<path_list.size(); i++){
+        cell_coverage_path_sorted.push_back(cell_coverage_path[path_list[i]]);     // push cell with the 'id_ = id' not index id
+    } 
+    // std::cout << std::endl << "Path" << std::endl;
+    // for(auto cell_path : cell_coverage_path_sorted){
+    //     for(auto p : cell_path)
+    //         std::cout << "(" << p.first << ", " << p.second << ") ";
+    //     std::cout << "\n";
+    // }
+
+    // std::cout << std::endl;
+
 }
 
 void coveragePlanner::traverse_cells(void){

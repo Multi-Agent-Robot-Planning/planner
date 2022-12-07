@@ -118,18 +118,19 @@ int main(int argc, char** argv) {
         cout << endl;
     }
     coverage_planner.decompose_map(map_boundary, obstacles);
-    coverage_planner.traverse_cells();
-    coverage_planner.build_path();
+    // coverage_planner.traverse_cells();
+    // coverage_planner.build_path();
+    // coverage_planner.sort_cell_traversal();
 
     std::vector<std::vector<std::pair<int, int>>> full_cell_coverage_path = coverage_planner.get_cell_coverage_path();
     std::vector<std::vector<std::pair<int, int>>> full_discritized_cell_coverage_path = coverage_planner.get_discretized_cell_coverage_path();
-    std::cout << endl << "Path" << endl;
+    // std::cout << endl << "Path" << endl;
     // for(auto cell_path : full_cell_coverage_path){
     //     for(auto p : cell_path)
     //         cout << "(" << p.first << ", " << p.second << ") ";
     //     cout << "\n";
     // }
-
+    std::cout << endl << "Discretized Path" << endl;
     for(auto cell_path : full_discritized_cell_coverage_path){
         for(auto p : cell_path)
             cout << "(" << p.first << ", " << p.second << ") ";

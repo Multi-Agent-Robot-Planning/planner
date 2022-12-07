@@ -10,12 +10,12 @@
             "type": "cppdbg",
             "cwd": "${workspaceFolder}",
             "request": "launch",
-            "program": "${workspaceFolder}/planner.out",
+            "program": "${workspaceFolder}/src/planner.out",
             // "program": "${workspaceFolder}/test.out",
             "MIMode": "gdb",
             // "args" : [],
             // "args": ["map1.txt","5","1.57,0.78,1.57,0.78,1.57","0.392,2.35,3.14,2.82,4.71","3","myOutput.txt"],
-            "args": ["map1.txt"],
+            "args": ["../maps/map1.txt"],
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

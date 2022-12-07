@@ -153,6 +153,9 @@ class Cell{
         std::shared_ptr<Cell> prev_;
         std::shared_ptr<Cell> next_;    
 
+        std::pair<int, int> path_start_;
+        std::pair<int, int> path_end_;
+
         Cell(){};
         Cell( Edge floor, Edge ceiling, int x_left, int x_right, std::vector<Cell> neighbors = {}) : 
                                                 ceiling_(ceiling), 
@@ -214,6 +217,10 @@ class Cell{
             floor_.print_edge();
             std::cout << "\nCeiling: ";
             ceiling_.print_edge();
+
+            std::cout << "\nPath start: " << "(" << path_start_.first << ", " << path_start_.second << ") " << std::endl;
+            std::cout << "Path end: " << "(" << path_end_.first << ", " << path_end_.second << ") " << std::endl;
+
             std::cout << "\n---------------------------------------------------------------------------------------------- " << std::endl;
         }
 };
