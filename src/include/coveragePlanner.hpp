@@ -36,7 +36,7 @@ class coveragePlanner
     std::pair<std::vector<std::pair<int, int>>, std::vector<std::pair<int, int>>> get_polygon_floor_ceiling(std::vector<std::pair<int, int>> cell_vertices);
     
     double cell_dist(Cell cell1, Cell cell2);
-    double start_end_dist(Cell cell1, Cell cell2);
+    double start_end_dist(Cell cell1, Cell cell2, bool start);
     
 
     public:

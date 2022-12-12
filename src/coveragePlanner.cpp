@@ -55,7 +55,6 @@ void coveragePlanner::get_event_type(std::vector<Point2D> polygon)
 {
     int i = 0;
     int j = 0;
-    std::cout << "Get event type" << " polygon size: " << polygon.size() << std::endl;
     while(i<polygon.size())
     {
         int n = polygon.size();
@@ -239,7 +238,6 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
                 point.y_ = obs.second + std::floor(camera_fov/2);
             }
             obstacle.push_back(point);
-            std::cout << "(" << point.x_ << ", " << point.y_ << ") " ;
         }
         obstacles.push_back(obstacle);
     }
@@ -398,6 +396,7 @@ void coveragePlanner::decompose_map(std::vector<std::pair<int, int>> map_boundar
     clean_cells(closed_cells);
     for(int i=0; i<map_cells.size(); i++){
         map_cells[i].id_ = i;
+        // map_cells[i].print_cell_details();
     }
 }
 
@@ -648,11 +647,18 @@ double coveragePlanner::cell_dist(Cell cell1, Cell cell2){
     return dist;
 }
 
-double coveragePlanner::start_end_dist(Cell cell1, Cell cell2){
+double coveragePlanner::start_end_dist(Cell cell1, Cell cell2, bool start=true){
     std::pair<int, int> end1 = cell1.path_end_;
     std::pair<int, int> start2 = cell2.path_start_;
+    std::pair<int, int> end2 = cell2.path_end_;
 
-    double dist = sqrt(pow((end1.first - start2.first), 2) + pow((end1.second - start2.second), 2));
+    double dist;
+    if(start){
+        dist = sqrt(pow((end1.first - start2.first), 2) + pow((end1.second - start2.second), 2));
+    }
+    else{
+        dist = sqrt(pow((end1.first - end2.first), 2) + pow((end1.second - end2.second), 2));
+    }
     return dist;
 }
 
@@ -669,7 +675,7 @@ void coveragePlanner::sort_cell_traversal(){
 
     while(!unvisited.empty()){
         
-        auto cell = map_cells[path_list.back()];
+        auto cell = map_cells[std::abs(path_list.back())];
         bool neighbors_visited = true;
         std::vector<int> next_ids;
 
@@ -685,29 +691,38 @@ void coveragePlanner::sort_cell_traversal(){
     
 
         int min_dist = INT_MAX;
-        int closest_cell = -1;
+        int closest_cell = 0;
         for(auto id : next_ids){
-            auto next_cell = map_cells[id];             // find cell with the 'id_ = id' not index id
-            double dist = start_end_dist(cell, next_cell);
+            auto next_cell = map_cells[id];
+            double dist = start_end_dist(cell, next_cell, true);
             if (dist < min_dist){
                 min_dist = dist;
                 closest_cell = id;
             }
+            double dist_back = start_end_dist(cell, next_cell, false);
+            if (dist_back < min_dist){
+                min_dist = dist_back;
+                closest_cell = -id;
+            }
         }
-        unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), closest_cell), unvisited.end());
+        unvisited.erase(std::remove(unvisited.begin(), unvisited.end(), std::abs(closest_cell)), unvisited.end());
         path_list.push_back(closest_cell);
     }   
     for(int i=0; i<path_list.size(); i++){
-        cell_coverage_path_sorted.push_back(cell_coverage_path[path_list[i]]);     // push cell with the 'id_ = id' not index id
-    } 
-    // std::cout << std::endl << "Path" << std::endl;
-    // for(auto cell_path : cell_coverage_path_sorted){
-    //     for(auto p : cell_path)
-    //         std::cout << "(" << p.first << ", " << p.second << ") ";
-    //     std::cout << "\n";
-    // }
+        std::cout << path_list[i] << std::endl;
+    }
+    for(int i=0; i<path_list.size(); i++){
+        if(path_list[i]>=0)
+            cell_coverage_path_sorted.push_back(cell_coverage_path[path_list[i]]);     // push cell with the 'id_ = id' not index id
 
-    // std::cout << std::endl;
+        else if(path_list[i]<0){
+            int positive_id = std::abs(path_list[i]);
+            std::reverse(cell_coverage_path[positive_id].begin(), cell_coverage_path[positive_id].end());
+            cell_coverage_path_sorted.push_back(cell_coverage_path[positive_id]); 
+        }
+    } 
+
+    std::cout << std::endl;
 
 }
 
